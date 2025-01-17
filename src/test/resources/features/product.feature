@@ -29,10 +29,15 @@ Feature: Gerenciamento de produtos
             | 3     |
             | 4     |
 
-    Scenario: CT004_Validar obtencao de produtos ordenados
-        Given obtenho produtos ordenados
+    Scenario Outline: CT004_Validar obtencao de produtos ordenados
+        Given obtenho produtos ordenados de forma <ordem>
         When realizo requisicao
         Then informa sucesso na obtencao
+
+        Examples:
+            | ordem |
+            | "asc" |
+            | "desc" |
 
     Scenario: CT005_Validar obtencao de todas as categorias
         Given obtenho todas as categorias
