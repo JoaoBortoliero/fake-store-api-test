@@ -17,7 +17,7 @@ public class ProductPage {
     private static final String UPDATE_PRODUCT_ENDPOINT = "/products/{productId}";
     private static final String DELETE_PRODUCT_ENDPOINT = "/products/{productId}";
 
-    public static String getEndpoint(String operation) throws Exception {
+    public static String getProductEndpoint(String operation) throws Exception {
         return switch (operation) {
             case "get all" -> GET_ALL_PRODUCTS_ENDPOINT;
             case "get single" -> GET_SINGLE_PRODUCTS_ENDPOINT;
@@ -28,15 +28,11 @@ public class ProductPage {
             case "create" -> ADD_NEW_PRODUCT_ENDPOINT;
             case "update" -> UPDATE_PRODUCT_ENDPOINT;
             case "delete" -> DELETE_PRODUCT_ENDPOINT;
-            default -> throw new IllegalStateException("Endpoint not found");
+            default -> throw new IllegalStateException("Products endpoint not found");
         };
     }
 
-    public static boolean isNullProductList(List<Product> products) throws Exception {
-        return products.stream().allMatch(Objects::nonNull);
-    }
-
-    public static boolean isNullProduct(Product product) throws Exception {
+    public static boolean isNotNullProduct(Product product) throws Exception {
         return product.getId() != 0
                 && Objects.nonNull(product.getTitle())
                 && product.getPrice() != 0

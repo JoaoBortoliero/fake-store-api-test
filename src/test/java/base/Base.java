@@ -16,12 +16,12 @@ public class Base {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         baseURI = "https://fakestoreapi.com";
 
-//         Request Specification
+//      Request Specification
         RestAssured.requestSpecification = new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)
                 .build();
 
-//        Reponse Specification
+//      Reponse Specification
         RestAssured.responseSpecification = new ResponseSpecBuilder()
                 .expectContentType(ContentType.JSON)
                 .build();

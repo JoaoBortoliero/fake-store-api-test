@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.*;
 import models.Product;
 import org.apache.http.HttpStatus;
 import page.ProductPage;
+import utils.Utilities;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,6 @@ public class ProductSteps {
     private Response productResponse;
 
     private HashMap<String, String> product;
-    private String operation;
     private int limit;
     private String sort;
 
@@ -44,39 +44,33 @@ public class ProductSteps {
     @Given("obtenho todos os produtos")
     public void obtenhoTodosOsProdutos() {
         requestSpecification = given();
-        operation = "get all";
     }
 
     @Given("obtenho produto com identificador {int}")
     public void obtenhoProdutoComIdentificador(int id) {
         requestSpecification = given().pathParam("productId", id);
-        operation = "get single";
     }
 
     @Given("obtenho produtos com limite de {int}")
     public void obtenhoProdutosComLimiteDeLimit(int limit) {
         requestSpecification = given().pathParam("limit", limit);
         this.limit = limit;
-        operation = "limit results";
     }
 
     @Given("obtenho produtos ordenados de forma {string}")
     public void obtenhoProdutosOrdenadosDeForma(String sort) {
         requestSpecification = given().pathParam("sort", sort);
         this.sort = sort;
-        operation = "sort results";
     }
 
     @Given("obtenho todas as categorias")
     public void obtenhoTodasAsCategorias() {
         requestSpecification = given();
-        operation = "all categories";
     }
 
     @Given("obtenho produtos da categoria {string}")
     public void obtenhoProdutosDaCategoria(String category) {
         requestSpecification = given().pathParam("category", category);
-        operation = "specific category";
     }
 
     @Given("crio produto {string}, {double}, {string}, {string} e {string}")
@@ -88,7 +82,6 @@ public class ProductSteps {
         product.put("image", image);
         product.put("category", category);
         requestSpecification = given().body(product);
-        operation = "create";
     }
 
     @Given("atualizo produto {int}, {string}, {double}, {string}, {string} e {string}")
@@ -100,35 +93,33 @@ public class ProductSteps {
         product.put("image", image);
         product.put("category", category);
         requestSpecification = given().body(product).pathParam("productId", id);
-        operation = "update";
     }
 
     @Given("deleto produto com identificador {int}")
     public void deletoProdutoComIdentificador(int productId) {
         requestSpecification = given().pathParam("productId", productId);
-        operation = "delete";
     }
 
-    @When("realizo requisicao")
-    public void realizoRequisicao() {
+    @When("realizo requisicao de produto {string}")
+    public void realizoRequisicaoDeProduto(String operation) {
         try {
             switch (operation) {
                 case "get all", "get single", "limit results", "sort results", "all categories", "specific category" ->
-                        productResponse = requestSpecification.when().get(ProductPage.getEndpoint(operation));
+                        productResponse = requestSpecification.when().get(ProductPage.getProductEndpoint(operation));
                 case "create" ->
-                        productResponse = requestSpecification.when().post(ProductPage.getEndpoint(operation));
+                        productResponse = requestSpecification.when().post(ProductPage.getProductEndpoint(operation));
                 case "update" ->
-                        productResponse = requestSpecification.when().put(ProductPage.getEndpoint(operation));
+                        productResponse = requestSpecification.when().put(ProductPage.getProductEndpoint(operation));
                 case "delete" ->
-                        productResponse = requestSpecification.when().delete(ProductPage.getEndpoint(operation));
+                        productResponse = requestSpecification.when().delete(ProductPage.getProductEndpoint(operation));
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error executing request: " + e.getMessage());
+            throw new RuntimeException("Error executing PRODUCT request: " + e.getMessage());
         }
     }
 
-    @Then("informa sucesso na operacao {string}")
-    public void informaSucessoNaOperacao(String operation) {
+    @Then("informa sucesso na operacao de produto {string}")
+    public void informaSucessoNaOperacaoDeProduto(String operation) {
         try {
             switch (operation) {
                 case "get all", "limit results", "sort results", "specific categories" -> {
@@ -138,7 +129,7 @@ public class ProductSteps {
                         .extract()
                         .body().jsonPath().getList("", Product.class);
 
-                    assertThat(ProductPage.isNullProductList(products), is(true));
+                    assertThat(Utilities.isNotNullList(products), is(true));
 
                     switch (operation){
                         case "limit results" -> assertThat(products.getLast().getId(), is(this.limit));
@@ -152,7 +143,7 @@ public class ProductSteps {
                         .extract()
                         .body().jsonPath().getObject("", Product.class);
 
-                    assertThat(ProductPage.isNullProduct(product), is(true));
+                    assertThat(ProductPage.isNotNullProduct(product), is(true));
                 }
                 case "all categories" -> {
                     List<String> categories = productResponse.then()
@@ -166,7 +157,7 @@ public class ProductSteps {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error validating response: " + e.getMessage());
+            throw new RuntimeException("Error validating PRODUCT response: " + e.getMessage());
         }
     }
 
